@@ -88,9 +88,15 @@ body.g-mode{background:#111;overscroll-behavior:none}
 #cam-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,#2b3442 0%,#12151b 70%)}
 #ar-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
 .ar-mk{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:auto;transition:left .12s linear,top .2s linear;-webkit-tap-highlight-color:transparent}
-.ar-mk .ch{display:flex;align-items:center;justify-content:center;min-width:64px;height:64px;padding:0 8px;border-radius:50%;background:rgba(255,255,255,.88);color:#1d1d1f;font-size:38px;box-shadow:0 2px 12px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.95)}
-.ar-mk .dist{margin-top:4px;font-size:.78rem;background:rgba(0,0,0,.6);padding:1px 8px;border-radius:99px}
-.ar-mk.hot .ch{background:#ffe08a;border-color:var(--accent);animation:pulse 1s infinite}
+.ar-mk .ch{display:block;line-height:1.05;color:#fff;font-size:28px;font-weight:700;white-space:nowrap;transition:font-size .25s ease;
+  text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px rgba(0,0,0,.85),2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000}
+.ar-mk .dist{margin-top:2px;font-size:.78rem;background:rgba(0,0,0,.6);padding:1px 8px;border-radius:99px;white-space:nowrap}
+/* 거리별 글자 크기: 10m 이내 > 20m > 30m > 40m > 그 너머 */
+.ar-mk.d10 .ch{font-size:72px}.ar-mk.d20 .ch{font-size:58px}.ar-mk.d30 .ch{font-size:46px}.ar-mk.d40 .ch{font-size:36px}.ar-mk.dfar .ch{font-size:28px}
+/* 포획 가능: 가장 크게 + 노란 상자 */
+.ar-mk.hot .ch{font-size:108px;color:#fff5c2;animation:glow 1s ease-in-out infinite}
+.ar-mk.hot .dist{background:#ffd400;color:#1d1d1f;font-weight:800;font-size:1rem;padding:5px 14px;border-radius:8px;border:2px solid #1d1d1f;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+@keyframes glow{0%,100%{text-shadow:0 0 2px #000,0 0 6px #000,2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000,0 0 18px #ffd400}50%{text-shadow:0 0 2px #000,0 0 6px #000,2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000,0 0 34px #ffd400}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,200,80,.8)}50%{box-shadow:0 0 0 14px rgba(255,200,80,0)}}
 #hud{position:absolute;left:0;right:0;top:0;z-index:5;display:flex;justify-content:space-between;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;background:linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,0))}
 #hud-title{font-size:.85rem;color:#ccc}
@@ -142,7 +148,7 @@ body.g-mode{background:#111;overscroll-behavior:none}
 .gm-pin{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-size:17px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5);line-height:1}
 .gm-pin.got{background:#2e7d4f;color:#fff}
 .gm-pin.unk{background:#6b6f78;color:#fff;font-family:sans-serif;font-weight:700}
-.gm-q{color:#fff;font:700 15px sans-serif;text-shadow:0 0 3px #000,0 0 3px #000;text-align:center;line-height:24px}
+.gm-q{color:#fff;font:800 22px sans-serif;text-shadow:0 0 3px #000,0 0 3px #000,0 0 6px #000;text-align:center;line-height:28px}
 #play-btns button{font-size:.88rem}
 #g-toast{position:absolute;left:50%;top:calc(90px + env(safe-area-inset-top));transform:translateX(-50%);z-index:30;background:rgba(30,77,51,.95);color:#fff;padding:9px 16px;border-radius:12px;font-size:.95rem;max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
@@ -186,7 +192,7 @@ body.g-mode{background:#111;overscroll-behavior:none}
       <label>오답 몇 번 뒤 힌트 표시<input id="b-hint" type="number" min="1" max="5" step="1"></label>
       <label>학생 지도에 못 찾은 한자 표시
         <select id="b-mapmode">
-          <option value="approx">대략적인 범위(원)로 표시</option>
+          <option value="approx">대략적인 위치(?)로 표시</option>
           <option value="exact">정확한 위치(?)로 표시</option>
           <option value="found">찾은 한자와 내 위치만</option>
           <option value="off">지도 메뉴 숨기기</option>
@@ -392,7 +398,7 @@ body.g-mode{background:#111;overscroll-behavior:none}
   </div>
 </div>
 
-<script type="application/json" id="game-data">{"version":1,"id":"gmvypntgj9g0v","title":"한자 찾기","timeLimitMin":20,"hintAfterWrong":2,"defaultRadius":15,"useCamera":true,"mapMode":"approx","googleKey":"","items":[{"id":"hmvypp9g7okku","char":"學","meaning":"배울 학","radical":"子","hint":"학교의 '학'","wrong":["가르칠 교","벗 우","더불어 여"],"lat":36.6339933,"lng":127.4261673,"radius":15},{"id":"hmvypq8785vm6","char":"林","meaning":"수풀 림","radical":"木","hint":"숲","wrong":["나무 목","갈 지","물 수"],"lat":36.6337307,"lng":127.4263604,"radius":15},{"id":"hmvypr2w0viyn","char":"水","meaning":"물 수","radical":"水","hint":"물","wrong":["말하다 왈","얼음 빙","쇠 금"],"lat":36.6339481,"lng":127.4257918,"radius":15},{"id":"hmvyps689bq2r","char":"金","meaning":"쇠 금","radical":"金","hint":"쇠붙이","wrong":["나 아","하나 일","힘 력"],"lat":36.6335929,"lng":127.4260385,"radius":15},{"id":"hmvyptf6okvz0","char":"土","meaning":"흙 토","radical":"土","hint":"흙","wrong":["선비 사","뱀 사","이미 이"],"lat":36.6334961,"lng":127.4267735,"radius":15},{"id":"hmvypu5tzso3i","char":"日","meaning":"해 일","radical":"日","hint":"하늘의 해","wrong":["달 월","말하다 왈","스스로 자"],"lat":36.6340901,"lng":127.4267118,"radius":15},{"id":"hmvyput452752","char":"月","meaning":"달 월","radical":"月","hint":"밤에 뜨는 달","wrong":["날 일","나오다 출","넉 사"],"lat":36.6343775,"lng":127.4264328,"radius":15},{"id":"hmvypvj5vhngd","char":"火","meaning":"불 화","radical":"火","hint":"피어오르는 불","wrong":["물 수","나무 목","쇠 금"],"lat":36.6337845,"lng":127.4268807,"radius":15},{"id":"hmvypwh0ourvg","char":"生","meaning":"날 생","radical":"生","hint":"태어나다, 날 것","wrong":["나오다 출","맡길 임","흙 토"],"lat":36.6334078,"lng":127.4258266,"radius":15},{"id":"hmvypxcl0pmin","char":"校","meaning":"학교 교","radical":"木","hint":"학교의 '교'","wrong":["사귈 교","때릴 타","물 수"],"lat":36.633509,"lng":127.4254699,"radius":15},{"id":"hmvypyu3abrds","char":"自","meaning":"스스로 자","radical":"自","hint":"스스로","wrong":["믿을 신","매울 신","코 비"],"lat":36.6338017,"lng":127.4252795,"radius":15},{"id":"hmvypzmuc8je1","char":"信","meaning":"믿을 신","radical":"人","hint":"믿다","wrong":["말씀 언","날 생","나오다 출"],"lat":36.6338964,"lng":127.4255101,"radius":15},{"id":"hmvyq0mrkgqu6","char":"高","meaning":"높다 고","radical":"高","hint":"높다","wrong":["낮다 저","길다 장","짧다 단"],"lat":36.633311,"lng":127.426237,"radius":15},{"id":"hmvyq1sq151kg","char":"平","meaning":"평평할 평","radical":"平","hint":"평평하다","wrong":["공경할 경","칠 타","사람 인"],"lat":36.6337802,"lng":127.4259232,"radius":15},{"id":"hmvyq2s7v8ol7","char":"森","meaning":"빽빽할 삼","radical":"木","hint":"빽빽하다","wrong":["수풀 림","나무 목","셋 삼"],"lat":36.6341741,"lng":127.4259795,"radius":15},{"id":"hmvyq3z3jgane","char":"中","meaning":"가운데 중","radical":"丨","hint":"가운데","wrong":["윗 상","아래 하","가운데 표"],"lat":36.6340105,"lng":127.4265347,"radius":15}]}</script>
+<script type="application/json" id="game-data">{"version":1,"id":"gmvytn4xmkblh","title":"한자 찾기","timeLimitMin":20,"hintAfterWrong":2,"defaultRadius":15,"useCamera":true,"mapMode":"approx","googleKey":"","items":[{"id":"hmvytnk991dwd","char":"學","meaning":"배울 학","radical":"","hint":"","wrong":[],"lat":36.6337436,"lng":127.4266849,"radius":15},{"id":"hmvytnwjuducv","char":"校","meaning":"학교 교","radical":"","hint":"","wrong":[],"lat":36.6340299,"lng":127.4259232,"radius":15},{"id":"hmvyto6zzfuk8","char":"林","meaning":"수풀 림","radical":"","hint":"","wrong":[],"lat":36.6338017,"lng":127.425309,"radius":15},{"id":"hmvytofe0gw89","char":"水","meaning":"물 수","radical":"","hint":"","wrong":[],"lat":36.6340148,"lng":127.4264275,"radius":15}]}</script>
 
 <script>
 (function(){
@@ -1197,12 +1203,12 @@ function initGame(data, opts){
         }
         const left = 50 + (x.diff / (FOV/2)) * 50;
         const top = 30 + (1 - Math.min(x.d, 200)/200) * 30;
-        const sc = Math.max(.55, Math.min(1.5, 1.5 - x.d/120)) * (currentTarget && currentTarget.it.id === x.it.id ? 1.25 : 1);
+        const hot = !!(currentTarget && currentTarget.it.id === x.it.id);
+        const band = x.d <= 10 ? 'd10' : x.d <= 20 ? 'd20' : x.d <= 30 ? 'd30' : x.d <= 40 ? 'd40' : 'dfar';
         el.style.left = left + '%'; el.style.top = top + '%';
-        el.style.transform = 'translate(-50%,-50%) scale(' + sc.toFixed(2) + ')';
-        el.style.zIndex = String(1000 - Math.round(x.d));
-        el.classList.toggle('hot', !!(currentTarget && currentTarget.it.id === x.it.id));
-        el.querySelector('.dist').textContent = fmtDist(x.d);
+        el.style.zIndex = String(hot ? 2000 : 1000 - Math.round(x.d));
+        el.className = 'ar-mk ' + band + (hot ? ' hot' : '');
+        el.querySelector('.dist').textContent = hot ? '포획 가능' : fmtDist(x.d);
       });
     }
     for (const id of Object.keys(G.markers)) if (!seen[id]){ G.markers[id].remove(); delete G.markers[id]; }
@@ -1310,7 +1316,7 @@ function initGame(data, opts){
     const found = Object.keys(S.captured).length;
     $('#map-head').textContent = '지도 · 찾은 한자 ' + found + '/' + items.length;
     $('#map-legend').innerHTML = '<span class="lg"><i style="background:#2e7d4f"></i>찾은 한자</span>' +
-      (MAP_MODE === 'exact' ? '<span class="lg"><i style="background:#6b6f78"></i>못 찾은 한자(?)</span>' : MAP_MODE === 'approx' ? '<span class="lg"><i style="background:rgba(255,170,90,.5);border:2px dashed #ffaa5a"></i>이 근처 어딘가에 있음</span>' : '') +
+      (MAP_MODE === 'exact' ? '<span class="lg"><i style="background:#6b6f78"></i>못 찾은 한자(?)</span>' : MAP_MODE === 'approx' ? '<span class="lg"><b style="color:#fff;text-shadow:0 0 3px #000">?</b> 이 근처에 못 찾은 한자</span>' : '') +
       '<span class="lg"><i style="background:#2f80ff"></i>나</span>';
     loadLeaflet().then(L => {
       GM.L = L;
@@ -1338,8 +1344,7 @@ function initGame(data, opts){
         pts.push([it.lat, it.lng]);
       } else if (MAP_MODE === 'approx'){
         const a = approxArea(it);
-        L.circle([a.lat, a.lng], {radius:a.r, color:'#ffaa5a', weight:2, dashArray:'6 6', fillColor:'#ffaa5a', fillOpacity:.18, interactive:false}).addTo(layer);
-        L.marker([a.lat, a.lng], {interactive:false, icon:L.divIcon({className:'', html:'<div class="gm-q">?</div>', iconSize:[24,24], iconAnchor:[12,12]})}).addTo(layer);
+        L.marker([a.lat, a.lng], {interactive:false, icon:L.divIcon({className:'', html:'<div class="gm-q">?</div>', iconSize:[28,28], iconAnchor:[14,14]})}).addTo(layer);
         pts.push([a.lat, a.lng]);
       }
     });
